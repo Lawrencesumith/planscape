@@ -1,0 +1,57 @@
+[
+    {
+        "name": "Rock Fort Temple",
+        "city": "Tiruchirappalli",
+        "lat": 10.8276,
+        "lon": 78.6965,
+        "type": "temple",
+        "rating": 4.5,
+        "description": "A historic hilltop temple with panoramic views of Trichy.",
+        "estimated_cost": 100,
+        "tags": ["culture", "adventure"]
+    },
+    {
+        "name": "Srirangam Temple",
+        "city": "Tiruchirappalli",
+        "lat": 10.8625,
+        "lon": 78.6897,
+        "type": "temple",
+        "rating": 4.7,
+        "description": "One of the largest functioning Hindu temples in the world.",
+        "estimated_cost": 50,
+        "tags": ["culture", "spiritual"]
+    },
+    {
+        "name": "Gingee Fort",
+        "city": "Villupuram",
+        "lat": 12.2525,
+        "lon": 79.4173,
+        "type": "attraction",
+        "rating": 4.3,
+        "description": "A historic fort known as the 'Troy of the East', great for trekking.",
+        "estimated_cost": 150,
+        "tags": ["adventure", "history"]
+    },
+    {
+        "name": "Kallalagar Temple",
+        "city": "Madurai",
+        "lat": 9.9797,
+        "lon": 78.2134,
+        "type": "temple",
+        "rating": 4.2,
+        "description": "A serene temple on the outskirts of Madurai, less crowded.",
+        "estimated_cost": 50,
+        "tags": ["culture", "hidden_gem"]
+    },
+    {
+        "name": "Auroville Beach",
+        "city": "Pondicherry",
+        "lat": 11.9870,
+        "lon": 79.8575,
+        "type": "hidden_gem",
+        "rating": 4.0,
+        "description": "A quiet beach near Pondicherry, perfect for relaxation.",
+        "estimated_cost": 0,
+        "tags": ["relaxation", "hidden_gem"]
+    }
+]

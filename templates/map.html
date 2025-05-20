@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Travel Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .controls {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .controls input, .controls select, .controls button {
+            padding: 8px;
+            margin: 5px 10px 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .controls input {
+            width: calc(50% - 20px);
+        }
+        .controls button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        #live-location {
+            margin-top: 10px;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .location-details {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .location-details h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detailed Travel Map</h1>
+    <div id="map"></div>
+    <div class="location-details">
+        <h3>Trip Details</h3>
+        <p><strong>Start:</strong> <span id="start-location">Not set</span> (Lat: <span id="start-lat">-</span>, Lng: <span id="start-lng">-</span>)</p>
+        <p><strong>Destination:</strong> <span id="dest-location">Not set</span> (Lat: <span id="dest-lat">-</span>, Lng: <span id="dest-lng">-</span>)</p>
+    </div>
+    <div class="controls">
+        <input id="start-input" type="text" placeholder="Enter start location">
+        <input id="dest-input" type="text" placeholder="Enter destination">
+        <select id="transport-mode">
+            <option value="DRIVING">Car</option>
+            <option value="WALKING">Walk</option>
+            <option value="BICYCLING">Bike</option>
+            <option value="TRANSIT">Bus/Transit</option>
+        </select>
+        <button onclick="calculateRoute()">Show Route</button>
+        <button onclick="toggleLiveTracking()">Toggle Live Location</button>
+        <div id="live-location">Live Location: Not tracking</div>
+    </div>
+
+    <script>
+        let map, directionsService, directionsRenderer;
+        let startMarker, destMarker, startInfoWindow, destInfoWindow;
+        let startLatLng = null, destLatLng = null;
+
+        window.initMap = function() {
+            // Initialize map with a default center (e.g., New York)
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 40.7128, lng: -74.0060 },
+                zoom: 12
+            });
+
+            // Initialize Directions Service and Renderer
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            // Initialize PlaceAutocompleteElement for start and destination inputs
+            const startInput = document.getElementById('start-input');
+            const destInput = document.getElementById('dest-input');
+            const startAutocomplete = document.createElement('gmp-place-autocomplete');
+            const destAutocomplete = document.createElement('gmp-place-autocomplete');
+            startInput.parentNode.replaceChild(startAutocomplete, startInput);
+            destInput.parentNode.replaceChild(destAutocomplete, destInput);
+            startAutocomplete.appendChild(startInput);
+            destAutocomplete.appendChild(destInput);
+
+            // Handle start location selection
+            startAutocomplete.addEventListener('gmp-place-changed', () => {
+                const place = startAutocomplete.getPlace();
+                console.log('Start place selected:', place);
+                if (!place || !place.geometry || !place.geometry.location) {
+                    console.error('Invalid start place:', place);
+                    alert("Please select a valid start location from the suggestions.");
+                    return;
+                }
+                startLatLng = place.geometry.location;
+                updateStartMarker(place.formatted_address, startLatLng.lat(), startLatLng.lng());
+                tryCalculateRoute();
+            });
+
+            // Handle destination selection
+            destAutocomplete.addEventListener('gmp-place-changed', () => {
+                const place = destAutocomplete.getPlace();
+                console.log('Destination place selected:', place);
+                if (!place || !place.geometry || !place.geometry.location) {
+                    console.error('Invalid destination place:', place);
+                    alert("Please select a valid destination from the suggestions.");
+                    return;
+                }
+                destLatLng = place.geometry.location;
+                updateDestMarker(place.formatted_address, destLatLng.lat(), destLatLng.lng());
+                tryCalculateRoute();
+            });
+        };
+
+        function tryCalculateRoute() {
+            if (startLatLng && destLatLng) {
+                console.log('Attempting to calculate route with:', { startLatLng, destLatLng });
+                calculateRoute();
+            } else {
+                console.log('Cannot calculate route, missing coordinates:', { startLatLng, destLatLng });
+            }
+        }
+
+        function updateStartMarker(address, lat, lng) {
+            // Update trip details
+            document.getElementById('start-location').textContent = address;
+            document.getElementById('start-lat').textContent = lat.toFixed(6);
+            document.getElementById('start-lng').textContent = lng.toFixed(6);
+
+            // Remove existing start marker if it exists
+            if (startMarker) {
+                startMarker.remove();
+            }
+            if (startInfoWindow) {
+                startInfoWindow.close();
+            }
+
+            // Add new start marker using AdvancedMarkerElement
+            startMarker = new google.maps.marker.AdvancedMarkerElement({
+                position: { lat, lng },
+                map: map,
+                title: address,
+                content: createCustomMarker('#FF0000') // Red for start
+            });
+            startInfoWindow = new google.maps.InfoWindow({
+                content: `<div><strong>Start: ${address}</strong></div>`
+            });
+            startMarker.addListener('click', () => {
+                startInfoWindow.open(map, startMarker);
+            });
+            startInfoWindow.open(map, startMarker);
+
+            // Adjust map center if no destination
+            if (!destLatLng) {
+                map.setCenter({ lat, lng });
+            }
+        }
+
+        function updateDestMarker(address, lat, lng) {
+            // Update trip details
+            document.getElementById('dest-location').textContent = address;
+            document.getElementById('dest-lat').textContent = lat.toFixed(6);
+            document.getElementById('dest-lng').textContent = lng.toFixed(6);
+
+            // Remove existing destination marker if it exists
+            if (destMarker) {
+                destMarker.remove();
+            }
+            if (destInfoWindow) {
+                destInfoWindow.close();
+            }
+
+            // Add new destination marker using AdvancedMarkerElement
+            destMarker = new google.maps.marker.AdvancedMarkerElement({
+                position: { lat, lng },
+                map: map,
+                title: address,
+                content: createCustomMarker('#00FF00') // Green for destination
+            });
+            destInfoWindow = new google.maps.InfoWindow({
+                content: `<div><strong>Destination: ${address}</strong></div>`
+            });
+            destMarker.addListener('click', () => {
+                destInfoWindow.open(map, destMarker);
+            });
+            destInfoWindow.open(map, destMarker);
+
+            // Adjust map center if no start
+            if (!startLatLng) {
+                map.setCenter({ lat, lng });
+            }
+        }
+
+        function createCustomMarker(color) {
+            const pin = new google.maps.marker.PinElement({
+                background: color,
+                borderColor: '#000',
+                glyphColor: '#000',
+                scale: 1.5
+            });
+            return pin.element;
+        }
+
+        function calculateRoute() {
+            if (!startLatLng || !destLatLng) {
+                console.log('Missing start or destination:', { startLatLng, destLatLng });
+                alert('Please select both start and destination locations.');
+                return;
+            }
+            // Clear previous route
+            directionsRenderer.setDirections({ routes: [] });
+            const selectedMode = document.getElementById('transport-mode').value;
+            const request = {
+                origin: startLatLng,
+                destination: destLatLng,
+                travelMode: google.maps.TravelMode[selectedMode]
+            };
+            console.log('Calculating route with request:', request);
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    // Adjust map to fit the route
+                    const bounds = new google.maps.LatLngBounds();
+                    bounds.extend(startLatLng);
+                    bounds.extend(destLatLng);
+                    map.fitBounds(bounds);
+                    console.log('Route calculated successfully:', result);
+                } else {
+                    console.error('Directions API failed:', status, result);
+                    alert('Could not calculate route: ' + status);
+                }
+            });
+        }
+
+        let watchId = null;
+        function toggleLiveTracking() {
+            const liveLocationDiv = document.getElementById('live-location');
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                liveLocationDiv.textContent = 'Live Location: Not tracking';
+                return;
+            }
+            if (!navigator.geolocation) {
+                liveLocationDiv.textContent = 'Live Location: Geolocation not supported';
+                return;
+            }
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    liveLocationDiv.textContent = `Live Location: Lat ${pos.lat.toFixed(6)}, Lng ${pos.lng.toFixed(6)}`;
+                    new google.maps.marker.AdvancedMarkerElement({
+                        position: pos,
+                        map: map,
+                        title: 'Your Location',
+                        content: createCustomMarker('#4285F4') // Blue for current location
+                    });
+                },
+                (error) => { liveLocationDiv.textContent = `Live Location Error: ${error.message}`; },
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+            );
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAeDD6FOXfWCJAOLIpamXEn1d9zMkeQJxk&callback=initMap&libraries=places,marker&loading=async';
+        script.async = true;
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

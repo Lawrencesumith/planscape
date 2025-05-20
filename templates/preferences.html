@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Planscape - Preferences</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #ff6200, #f4f4f4); 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+            width: 400px; 
+            text-align: center; 
+        }
+        h1 { 
+            color: #ff6200; 
+            margin-bottom: 20px; 
+        }
+        form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        select, input[type="number"] { 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 16px; 
+        }
+        button { 
+            background: #ff6200; 
+            color: white; 
+            padding: 10px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px; 
+        }
+        button:hover { 
+            background: #e65c00; 
+        }
+        .error, .success { 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border-radius: 4px; 
+        }
+        .error { 
+            background: #ffe5e5; 
+            color: #d32f2f; 
+        }
+        .success { 
+            background: #e5ffe5; 
+            color: #2e7d32; 
+        }
+        a { 
+            color: #ff6200; 
+            text-decoration: none; 
+        }
+        a:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Preferences</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('preferences') }}">
+            <select name="transport" required>
+                <option value="bike" {% if preferences and preferences.transport == 'bike' %}selected{% endif %}>Bike</option>
+                <option value="train" {% if preferences and preferences.transport == 'train' %}selected{% endif %}>Train</option>
+                <option value="bus" {% if preferences and preferences.transport == 'bus' %}selected{% endif %}>Bus</option>
+                <option value="flight" {% if preferences and preferences.transport == 'flight' %}selected{% endif %}>Flight</option>
+            </select>
+            <input type="number" name="budget" placeholder="Budget (₹)" value="{{ preferences.budget if preferences else 10000 }}" min="1000" required>
+            <input type="number" name="group_size" placeholder="Group Size" value="{{ preferences.group_size if preferences else 1 }}" min="1" required>
+            <button type="submit">Save Preferences</button>
+        </form>
+        <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planscape Journey - {{ itinerary.start | capitalize }} to {{ itinerary.destination | capitalize }}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Lora:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://copilot.live/embed.js" async></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background: #f5f5f0;
+            color: #3a3a3a;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Montserrat', sans-serif;
+            color: #2a3d45;
+        }
+
+        /* Header Section */
+        header {
+            position: relative;
+            height: 400px;
+            background: url('/static/images/header-image.jpg') no-repeat center center/cover;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(42, 61, 69, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .header-overlay h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+            animation: slideInDown 1s ease-out;
+        }
+
+        .header-overlay p {
+            font-size: 1.5rem;
+            color: #e6d5b8;
+            margin-top: 1rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1.2s ease-out 0.3s;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: -80px auto 0;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .tab-button {
+            background: #e6d5b8;
+            padding: 1rem 2.5rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2a3d45;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button:hover,
+        .tab-button.active {
+            background: #d4a017;
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #e6d5b8;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #d4a017, #2a3d45);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Journey Overview */
+        .journey-overview .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .journey-overview .grid p {
+            background: #f9f5e7;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            color: #3a3a3a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .journey-overview .grid p strong {
+            color: #d4a017;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            background: #e6d5b8;
+            border-radius: 20px;
+            height: 30px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #d4a017, #2a3d45);
+            height: 100%;
+            transition: width 1.5s ease-in-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        /* Route Map */
+        .route-map .map-image {
+            width: 100%;
+            max-width: 600px;
+            height: 250px;
+            border-radius: 15px;
+            border: 3px solid #e6d5b8;
+            object-fit: contain;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+
+        .route-map .map-image:hover {
+            transform: scale(1.03);
+        }
+
+        /* Route Details */
+        .route-details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .route-details-content.open {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .route-details-content ul li {
+            background: #f9f5e7;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Hotel Card */
+        .hotel-card {
+            position: relative;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .hotel-image {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .hotel-card:hover .hotel-image {
+            transform: scale(1.05);
+        }
+
+        .hotel-details {
+            padding: 2rem;
+            background: linear-gradient(145deg, #fff, #f9f5e7);
+        }
+
+        .hotel-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .hotel-address,
+        .hotel-rating {
+            font-size: 1.1rem;
+            color: #3a3a3a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .book-now-btn {
+            display: inline-block;
+            background: #d4a017;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .book-now-btn:hover {
+            background: #2a3d45;
+            transform: translateY(-2px);
+        }
+
+        /* Daily Itinerary */
+        .daily-itinerary .day {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .daily-itinerary h4 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            background: #2a3d45;
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #d4a017, #e6d5b8);
+            padding: 2rem;
+            border-radius: 15px;
+            color: #2a3d45;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .highlight-card h5 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .highlight-card button {
+            background: #2a3d45;
+            color: #fff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .highlight-card button:hover {
+            background: #3a3a3a;
+        }
+
+        .activity-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-left: 5px solid #d4a017;
+            transition: all 0.3s ease;
+        }
+
+        .activity-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-card .photo {
+            width: 100%;
+            max-width: 400px;
+            height: 120px;
+            border-radius: 10px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .map-preview .activity-map {
+            width: 100%;
+            max-width: 400px;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px solid #e6d5b8;
+            object-fit: contain;
+            cursor: pointer;
+        }
+
+        /* Traveler Insights */
+        .traveler-insights .review {
+            background: #f9f5e7;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .traveler-insights .review:hover {
+            background: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pro Tips */
+        .pro-tips ul {
+            list-style: none;
+        }
+
+        .pro-tips li {
+            background: #f9f5e7;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Train Suggestion */
+        .train-suggestion {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #d4a017;
+        }
+
+        /* Footer */
+        footer {
+            background: #2a3d45;
+            color: #e6d5b8;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #d4a017;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            display: block;
+        }
+
+        .back-to-top:hover {
+            background: #2a3d45;
+            transform: scale(1.1);
+        }
+
+        /* Chatbot Icon */
+        .chatbot-icon {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            background: #d4a017;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 1.5rem;
+        }
+
+        .chatbot-icon:hover {
+            background: #2a3d45;
+            transform: scale(1.1);
+        }
+
+        /* Chatbot Widget */
+        #chatbot-widget .chat-header {
+            background: #d4a017;
+            color: #fff;
+        }
+
+        #chatbot-widget .chat-button {
+            background: #d4a017;
+        }
+
+        #chatbot-widget .chat-button:hover {
+            background: #2a3d45;
+        }
+
+        /* Modal for Image Expansion */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: block;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #d4a017;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                height: 300px;
+                clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 95%, 0 80%);
+            }
+
+            .header-overlay h1 {
+                font-size: 2.5rem;
+            }
+
+            .header-overlay p {
+                font-size: 1.2rem;
+            }
+
+            .tab-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .activity-card {
+                flex-direction: column;
+            }
+
+            .activity-card .photo {
+                max-width: 100%;
+                height: 100px;
+            }
+
+            .map-preview .activity-map {
+                max-width: 100%;
+                height: 80px;
+            }
+
+            .route-map .map-image {
+                max-width: 100%;
+                height: 200px;
+            }
+
+            .hotel-image {
+                max-width: 100%;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-overlay">
+            <h1>{{ itinerary.start | capitalize }} to {{ itinerary.destination | capitalize }}</h1>
+            <p>{{ itinerary.distance | round(2) }} km | {{ itinerary.days }} Days</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('details')">Journey Details</button>
+            <button class="tab-button" onclick="openTab('reviews')">Traveler Insights</button>
+            <button class="tab-button" onclick="openTab('tips')">Pro Tips</button>
+        </div>
+
+        <!-- Details Tab -->
+        <div id="details" class="tab-content active">
+            <!-- Journey Overview -->
+            <div class="card journey-overview">
+                <h3 class="text-2xl font-semibold mb-6">Journey Overview</h3>
+                <div class="grid">
+                    <div>
+                        <p><i class="fas fa-map-marker-alt text-yellow-600"></i><strong>From:</strong> {{
+                            itinerary.start | capitalize }}</p>
+                        <p><i class="fas fa-flag-checkered text-yellow-600"></i><strong>To:</strong> {{
+                            itinerary.destination | capitalize }}</p>
+                        <p><i class="fas fa-calendar-alt text-yellow-600"></i><strong>Start:</strong> {{
+                            itinerary.start_date }} at {{ itinerary.start_time }}</p>
+                        <p><i class="fas fa-calendar-alt text-yellow-600"></i><strong>Return:</strong> {{
+                            itinerary.return_date }} at {{ itinerary.return_time }}</p>
+                    </div>
+                    <div>
+                        <p><i class="fas fa-wallet text-yellow-600"></i><strong>Budget:</strong> ₹{{ itinerary.budget }}
+                        </p>
+                        <p><i class="fas fa-money-bill-wave text-yellow-600"></i><strong>Total Transport Cost:</strong>
+                            ₹{{ itinerary.transport_cost | round(2) }}</p>
+                        {% if itinerary.transport in ['bike', 'car'] %}
+                        <p><i class="fas fa-users text-yellow-600"></i><strong>Number of Vehicles:</strong> {{
+                            itinerary.num_vehicles }} ({{ itinerary.people_per_vehicle }} people per vehicle)</p>
+                        <p><i class="fas fa-gas-pump text-yellow-600"></i><strong>Intra-City Fuel Cost:</strong> ₹{{
+                            itinerary.intra_city_fuel_cost | round(2) }}</p>
+                        {% endif %}
+                        <p><i class="fas fa-money-bill-wave text-yellow-600"></i><strong>Total Cost:</strong> ₹{{
+                            itinerary.total_cost | round(2) }}</p>
+                        <p><i class="fas fa-car text-yellow-600"></i><strong>Transport:</strong> {{ itinerary.transport
+                            | capitalize }} {% if itinerary.bike_model %}({{ itinerary.bike_model | replace('_', ' ') |
+                            capitalize }}){% endif %}</p>
+                        <p><i class="fas fa-users text-yellow-600"></i><strong>Group Size:</strong> {{
+                            itinerary.group_size }}</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold mb-2">Budget Progress</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill"
+                            style="width: {{ (itinerary.total_cost / itinerary.budget * 100) | round(2) }}%;"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">{{ (itinerary.total_cost / itinerary.budget * 100) | round(2)
+                        }}% of Budget Used</p>
+                </div>
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold mb-2">Current Weather</h4>
+                    <div class="flex items-center space-x-3">
+                        <img src="https:{{ itinerary.current_weather.icon }}"
+                            alt="{{ itinerary.current_weather.condition }}" class="w-12 h-12">
+                        <p>{{ itinerary.current_weather.condition }}, {{ itinerary.current_weather.temperature }}°C</p>
+                        <p><i class="fas fa-tint"></i>Humidity: {{ itinerary.current_weather.humidity }}%, <i
+                                class="fas fa-wind"></i>Wind: {{ itinerary.current_weather.wind_speed }} kph</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Route Map -->
+            <div class="card route-map mt-8">
+                <h3 class="text-2xl font-semibold mb-4">Route Map Preview</h3>
+                <img src="https://maps.googleapis.com/maps/api/staticmap?center={{ itinerary.start_coords.lat }},{{ itinerary.start_coords.lng }}&zoom=8&size=600x300&maptype=roadmap&markers=color:red%7C{{ itinerary.start_coords.lat }},{{ itinerary.start_coords.lng }}&markers=color:green%7C{{ itinerary.dest_coords.lat }},{{ itinerary.dest_coords.lng }}&key={{ GOOGLE_API_KEY }}"
+                    alt="Map Preview" class="map-image" onclick="openModal(this.src, 'Map Preview')">
+                <div class="mt-4 flex gap-3">
+                    <a href="https://www.google.com/maps/dir/?api=1&origin={{ itinerary.start | urlencode }}&destination={{ itinerary.destination | urlencode }}&travelmode=driving"
+                        target="_blank" class="book-now-btn">View Full Map</a>
+                    <a href="/map?start={{ itinerary.start | urlencode }}&dest={{ itinerary.destination | urlencode }}&startLat={{ itinerary.start_coords.lat }}&startLng={{ itinerary.start_coords.lng }}&destLat={{ itinerary.dest_coords.lat }}&destLng={{ itinerary.dest_coords.lng }}"
+                        target="_blank" class="book-now-btn">Custom Map View</a>
+                </div>
+            </div>
+
+            <!-- Route Details -->
+            <div class="card mt-8">
+                <h3 class="text-2xl font-semibold mb-4">Route Breakdown</h3>
+                <button class="w-full text-left text-yellow-600 hover:underline flex justify-between items-center mb-2"
+                    onclick="toggleRouteDetails()">
+                    <span>Explore Route Steps</span>
+                    <i class="fas fa-chevron-down transform transition-transform duration-300" id="route-icon"></i>
+                </button>
+                <div id="route-details-content" class="route-details-content">
+                    <ul>
+                        {% for step in itinerary.route_details %}
+                        <li>
+                            <i class="fas fa-road text-yellow-600"></i>
+                            <span>{{ step.instruction | safe }} - <i
+                                    class="fas fa-arrows-alt-h text-yellow-600 mr-1"></i>{{ step.distance | round(2) }}
+                                km, <i class="fas fa-clock text-yellow-600 mr-1"></i>{{ step.duration | round(2) }}
+                                mins</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Hotel -->
+            <div class="hotel-card mt-8">
+                <h3 class="text-2xl font-semibold mb-4 pt-6 px-6">Your Stay</h3>
+                {% if itinerary.hotel.photo_url %}
+                <img src="{{ itinerary.hotel.photo_url }}" alt="{{ itinerary.hotel.name }}" class="hotel-image"
+                    onclick="openModal(this.src, '{{ itinerary.hotel.name }}')">
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">No Photo Available
+                </div>
+                {% endif %}
+                <div class="hotel-details">
+                    <h4 class="hotel-name">{{ itinerary.hotel.name }}</h4>
+                    <p class="hotel-address"><i class="fas fa-map-pin text-yellow-600"></i>{{ itinerary.hotel.address }}
+                    </p>
+                    <p class="hotel-rating"><i class="fas fa-star text-yellow-600"></i>{{ itinerary.hotel.rating }} ★
+                    </p>
+                    <a href="https://www.booking.com" target="_blank" class="book-now-btn">Book Now</a>
+                </div>
+            </div>
+
+            <!-- Daily Itinerary -->
+            <div class="card daily-itinerary mt-8">
+                <h3 class="text-2xl font-semibold mb-6">Your Daily Adventure</h3>
+                {% for day in itinerary.plan %}
+                <div class="day">
+                    <h4>{{ day.date }} (Day {{ day.day }})</h4>
+                    <div class="highlight-card">
+                        <h5>Day's Spotlight</h5>
+                        <p>Discover the magic of {{ itinerary.destination | capitalize }} with a visit to a cultural
+                            treasure - a must-see experience!</p>
+                        <button>Add to Favorites</button>
+                    </div>
+                    <div class="activities">
+                        {% for activity in day.schedule %}
+                        <div class="activity-card">
+                            <div class="details">
+                                <p class="text-lg font-semibold">{{ activity.time }}: {{ activity.activity }}</p>
+                                <p><i class="fas fa-map-marker-alt text-yellow-600"></i><strong>Place:</strong> {{
+                                    activity.place_name }}</p>
+                                <p><i class="fas fa-money-bill-wave text-yellow-600"></i><strong>Cost:</strong> ₹{{
+                                    activity.cost | round(2) }}</p>
+                                {% if activity.rating %}
+                                <p><i class="fas fa-star text-yellow-600"></i><strong>Rating:</strong> {{
+                                    activity.rating }} ★</p>
+                                {% endif %}
+                                {% if activity.why_famous %}
+                                <p><i class="fas fa-info-circle text-yellow-600"></i><strong>Why Famous:</strong> {{
+                                    activity.why_famous }}</p>
+                                {% endif %}
+                                {% if activity.why_visit %}
+                                <p><i class="fas fa-eye text-yellow-600"></i><strong>Why Visit:</strong> {{
+                                    activity.why_visit }}</p>
+                                {% endif %}
+                                {% if activity.special_occasion %}
+                                <p><i class="fas fa-calendar-alt text-yellow-600"></i><strong>Special Occasion:</strong>
+                                    {{ activity.special_occasion }}</p>
+                                {% endif %}
+                                {% if activity.safety %}
+                                <p><i class="fas fa-shield-alt text-yellow-600"></i><strong>Safety:</strong> {{
+                                    activity.safety }}</p>
+                                {% endif %}
+                                <div class="flex gap-3">
+                                    {% if activity.maps_link %}
+                                    <a href="{{ activity.maps_link }}" target="_blank"
+                                        class="text-yellow-600 hover:underline"><i class="fas fa-map mr-2"></i>View on
+                                        Maps</a>
+                                    {% endif %}
+                                    {% if activity.youtube_link %}
+                                    <a href="{{ activity.youtube_link }}" target="_blank"
+                                        class="text-yellow-600 hover:underline"><i class="fab fa-youtube mr-2"></i>Watch
+                                        on YouTube</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="visuals">
+                                {% if activity.photo_url %}
+                                <img src="{{ activity.photo_url }}" alt="{{ activity.place_name }}" class="photo"
+                                    onclick="openModal(this.src, '{{ activity.place_name }}')">
+                                {% else %}
+                                <div class="photo bg-gray-200 flex items-center justify-center text-gray-500">No Photo
+                                </div>
+                                {% endif %}
+                                {% if activity.place_name %}
+                                {% set place_coords = activity.place_name | urlencode %}
+                                <div class="map-preview">
+                                    <img src="https://maps.googleapis.com/maps/api/staticmap?center={{ place_coords }}&zoom=14&size=400x200&maptype=roadmap&markers=color:orange%7C{{ place_coords }}&key={{ GOOGLE_API_KEY }}"
+                                        alt="Map of {{ activity.place_name }}" class="activity-map"
+                                        onclick="openModal(this.src, 'Map of {{ activity.place_name }}')">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Traveler Insights Tab -->
+        <div id="reviews" class="tab-content">
+            <div class="card traveler-insights">
+                <h3 class="text-2xl font-semibold mb-6">Traveler Insights</h3>
+                <div class="reviews">
+                    {% for i in range(3) %}
+                    <div class="review">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <span class="font-semibold">Traveler {{ i + 1 }}</span>
+                            <span class="text-yellow-500">★★★★☆ (4.0)</span>
+                        </div>
+                        <p>An unforgettable journey! The route was breathtaking, and the accommodations were top-notch.
+                            Perfect for a quick escape.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pro Tips Tab -->
+        <div id="tips" class="tab-content">
+            <div class="card pro-tips">
+                <h3 class="text-2xl font-semibold mb-6">Pro Tips for Your Trip</h3>
+                <ul>
+                    <li><i class="fas fa-cloud-sun text-yellow-600"></i>Monitor weather forecasts before setting out.
+                    </li>
+                    <li><i class="fas fa-map text-yellow-600"></i>Keep a local map or GPS handy for offline navigation.
+                    </li>
+                    <li><i class="fas fa-ticket-alt text-yellow-600"></i>Reserve hotels and transport early during high
+                        season.</li>
+                    <li><i class="fas fa-backpack text-yellow-600"></i>Pack smart—bring essentials like water, snacks,
+                        and a first-aid kit.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Train Suggestion -->
+        {% if itinerary.train_suggestion %}
+        <div class="train-suggestion mt-8">
+            <h3 class="text-2xl font-semibold mb-4">Train Recommendation</h3>
+            <p><i class="fas fa-train text-yellow-600"></i>{{ itinerary.train_suggestion }}</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Planscape. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Chatbot Link -->
+    <a href="{{ url_for('chat_page') }}" class="chatbot-icon" title="Chat with RoverBuddy">
+        <i class="fas fa-comment-dots"></i>
+    </a>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" data-bot-id="your-bot-id" data-bot-name="RoverBuddy"></div>
+
+    <!-- Modal for Image Expansion -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">×</span>
+        <img id="modalImage" class="modal-content" src="" alt="">
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        window.onload = function () {
+            CopilotLive.init({
+                botId: "your-bot-id",
+                position: "bottom-right",
+                theme: {
+                    primaryColor: "#d4a017",
+                    secondaryColor: "#2a3d45",
+                    fontFamily: "'Montserrat', sans-serif"
+                },
+                welcomeMessage: "Hi! I’m RoverBuddy, your travel assistant for Planscape. How can I help you plan your journey today? 😊"
+            });
+
+            const tabButtons = document.getElementsByClassName('tab-button');
+            tabButtons[0].classList.add('active');
+        };
+
+        function openTab(tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            const tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function toggleRouteDetails() {
+            const content = document.getElementById('route-details-content');
+            const icon = document.getElementById('route-icon');
+            content.classList.toggle('open');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const backToTop = document.querySelector('.back-to-top');
+            const chatbotIcon = document.querySelector('.chatbot-icon');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+                chatbotIcon.style.display = 'flex';
+            } else {
+                backToTop.classList.remove('visible');
+                chatbotIcon.style.display = 'flex';
+            }
+        });
+
+        // Modal Functions
+        function openModal(src, alt) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = src;
+            modalImg.alt = alt;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('imageModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

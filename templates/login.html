@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flit Rovers - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6200, #f4f4f4);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff6200;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #ff6200;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #e65c00;
+        }
+
+        .error {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background: #ffe5e5;
+            color: #d32f2f;
+            display: none;
+        }
+
+        a {
+            color: #ff6200;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Login to Flit Rovers</h1>
+        <div id="error-message" class="error"></div>
+        <form id="login-form">
+            <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email">
+            <input type="password" id="password" name="password" placeholder="Password" required
+                autocomplete="current-password">
+            <button type="submit">Sign In</button>
+        </form>
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p>Forgot your password? <a href="/forgot_password">Reset Password</a></p>
+    </div>
+
+    <script type="module">
+        import { login } from '/static/js/firebase-config.js';
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            try {
+                const user = await login(email, password);
+                console.log("Login user:", user);
+                if (user) {
+                    window.location.href = '/success?action=login';
+                } else {
+                    throw new Error("Login failed: No user returned");
+                }
+            } catch (error) {
+                errorMessage.textContent = `Login failed: ${error.message}`;
+                errorMessage.style.display = 'block';
+                console.error("Detailed login error:", error);
+            }
+        });
+    </script>
+</body>
+
+</html>

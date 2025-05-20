@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Flit Rovers</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .signup-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to bottom, #ff6200, #f4f4f4);
+        }
+
+        .signup-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        .signup-box h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .signup-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .signup-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff6200;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .signup-box button:hover {
+            background-color: #e55a00;
+        }
+
+        .signup-box a {
+            display: block;
+            margin-top: 10px;
+            color: #ff6200;
+            text-decoration: none;
+        }
+
+        .signup-box a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background: #ffe5e5;
+            color: #d32f2f;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="signup-container">
+        <div class="signup-box">
+            <h2>Join Flit Rovers</h2>
+            <div id="error-message" class="error-message"></div>
+            <form id="signup-form">
+                <input type="text" id="name" name="name" placeholder="Full Name" required autocomplete="name">
+                <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email">
+                <input type="password" id="password" name="password" placeholder="Password" required
+                    autocomplete="new-password">
+                <button type="submit">Sign Up</button>
+            </form>
+            <a href="/login">Already have an account? Sign In</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signup } from '/static/js/firebase-config.js';
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            try {
+                const user = await signup(email, password);
+                console.log("Signup user:", user);
+                if (user) {
+                    window.location.href = '/login'; // Redirect to /login instead of /success
+                } else {
+                    throw new Error("Signup failed: No user returned");
+                }
+            } catch (error) {
+                errorMessage.textContent = `Signup failed: ${error.message}`;
+                errorMessage.style.display = 'block';
+                console.error("Detailed signup error:", error);
+            }
+        });
+    </script>
+</body>
+
+</html>

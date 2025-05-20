@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planscape Journey - Chat with RoverBuddy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Lora:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background: #f5f5f0;
+            color: #3a3a3a;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: #2a3d45;
+        }
+
+        /* Header Section */
+        header {
+            position: relative;
+            height: 300px;
+            background: url('/static/images/header-image.jpg') no-repeat center center/cover;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(42, 61, 69, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .header-overlay h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+            animation: slideInDown 1s ease-out;
+        }
+
+        .header-overlay p {
+            font-size: 1.5rem;
+            color: #e6d5b8;
+            margin-top: 1rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1.2s ease-out 0.3s;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 800px;
+            margin: -60px auto 0;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e6d5b8;
+        }
+
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #d4a017, #2a3d45);
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e6d5b8;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: #f9f5e7;
+        }
+
+        .chat-message {
+            margin: 0.5em 0;
+            padding: 0.75em;
+            border-radius: 10px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background-color: #d4a017;
+            color: #fff;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .bot-message {
+            background-color: #f4f4f4;
+            margin-right: auto;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #e6d5b8;
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 1rem;
+        }
+
+        .chat-input button {
+            padding: 0.75rem 2rem;
+            background: #d4a017;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background: #2a3d45;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-block;
+            margin: 1rem 0;
+            color: #d4a017;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #2a3d45;
+        }
+
+        /* Footer */
+        footer {
+            background: #2a3d45;
+            color: #e6d5b8;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header {
+                height: 250px;
+                clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 95%, 0 80%);
+            }
+
+            .header-overlay h1 {
+                font-size: 2rem;
+            }
+
+            .header-overlay p {
+                font-size: 1.2rem;
+            }
+
+            .chat-box {
+                height: 300px;
+            }
+
+            .chat-input {
+                flex-direction: column;
+            }
+
+            .chat-input button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-overlay">
+            <h1>Chat with RoverBuddy</h1>
+            <p>Your Planscape Travel Assistant</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="chat-container">
+            <h2 class="text-2xl font-semibold mb-4">Travel Assistant</h2>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-message bot-message">Hello! I'm RoverBuddy, your Planscape travel assistant. How can I help you today?</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Type your message..." onkeypress="if(event.keyCode==13) sendMessage()">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <a href="{{ url_for('index') }}" class="back-link"><i class="fas fa-arrow-left mr-2"></i>Back to Home</a>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Planscape. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'chat-message user-message';
+            userMessage.textContent = message;
+            chatBox.appendChild(userMessage);
+
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+                const data = await response.json();
+
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chat-message bot-message';
+                botMessage.textContent = data.response;
+                chatBox.appendChild(botMessage);
+
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'chat-message bot-message';
+                errorMessage.textContent = 'Sorry, something went wrong. Please try again.';
+                chatBox.appendChild(errorMessage);
+            }
+        }
+    </script>
+</body>
+</html>

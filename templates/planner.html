@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flit Rovers - Plan Your Trip</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6200, #f4f4f4);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 700px;
+            margin: 2rem;
+        }
+
+        h1 {
+            color: #ff6200;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        label {
+            color: #333;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #ff6200;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        input,
+        select {
+            padding: 0.75rem;
+            border: 2px solid #ff6200;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #e65c00;
+            box-shadow: 0 0 5px rgba(255, 98, 0, 0.3);
+            outline: none;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        button {
+            background: #ff6200;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background: #e65c00;
+            transform: scale(1.02);
+        }
+
+        .error,
+        .success {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: #ffe5e5;
+            color: #d32f2f;
+        }
+
+        .success {
+            background: #e5ffe5;
+            color: #2e7d32;
+        }
+
+        a {
+            color: #ff6200;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #e65c00;
+            text-decoration: underline;
+        }
+
+        #bike_fields,
+        #people_per_vehicle_div {
+            display: none;
+        }
+
+        .location-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .location-row button {
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            background: #ff6200;
+            color: white;
+            border-radius: 0.5rem;
+            transition: background 0.3s ease, transform 0.1s ease;
+        }
+
+        .location-row button:hover {
+            background: #e65c00;
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .location-row {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .location-row button {
+                width: 100%;
+            }
+
+            .tooltip .tooltiptext {
+                width: 150px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <script>
+        function toggleBikeFields() {
+            var transport = document.getElementById('transport').value;
+            var bikeFields = document.getElementById('bike_fields');
+            var peoplePerVehicleDiv = document.getElementById('people_per_vehicle_div');
+            bikeFields.style.display = transport === 'bike' ? 'block' : 'none';
+            peoplePerVehicleDiv.style.display = (transport === 'bike' || transport === 'car') ? 'block' : 'none';
+        }
+
+        function useCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+
+                        fetch('/reverse_geocode', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ lat: lat, lon: lon }),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.city) {
+                                    document.getElementById('start').value = data.city;
+                                } else {
+                                    alert('Could not determine your location. Please enter it manually.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching city name:', error);
+                                alert('Error determining your location. Please enter it manually.');
+                            });
+                    },
+                    function (error) {
+                        console.error('Geolocation error:', error);
+                        alert('Unable to access your location. Please allow location access or enter your starting point manually.');
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser. Please enter your starting point manually.');
+            }
+        }
+
+        function validateForm() {
+            const startDate = new Date(document.querySelector('input[name="start_date"]').value + 'T' + document.querySelector('input[name="start_time"]').value);
+            const returnDate = new Date(document.querySelector('input[name="return_date"]').value + 'T' + document.querySelector('input[name="return_time"]').value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (startDate < today) {
+                alert('Start date cannot be in the past!');
+                return false;
+            }
+            if (returnDate <= startDate) {
+                alert('Return date and time must be after start date and time!');
+                return false;
+            }
+            return true;
+        }
+
+        window.onload = function () {
+            toggleBikeFields();
+            document.querySelector('form').addEventListener('submit', function (e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                }
+            });
+        };
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1><i class="fas fa-road mr-2"></i>Plan Your Trip with Flit Rovers</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('planner', edit_id=itinerary.id if itinerary else None) }}">
+            <div class="form-group">
+                <label for="start">
+                    <i class="fas fa-map-marker-alt mr-1"></i>Starting City
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Enter the city where your trip begins. Click 'Use Current Location' to
+                            auto-fill.</span>
+                    </span>
+                </label>
+                <div class="location-row">
+                    <input type="text" id="start" name="start" placeholder="e.g., Chennai"
+                        value="{{ itinerary.start if itinerary else (preferences.start if preferences else '') }}"
+                        required>
+                    <button type="button" onclick="useCurrentLocation()"><i class="fas fa-map-marker-alt mr-1"></i>Use
+                        Current Location</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="destination">
+                    <i class="fas fa-flag-checkered mr-1"></i>Destination City
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Enter the city you want to travel to (e.g., Madurai).</span>
+                    </span>
+                </label>
+                <input type="text" id="destination" name="destination" placeholder="e.g., Madurai"
+                    value="{{ itinerary.destination if itinerary else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="budget">
+                    <i class="fas fa-wallet mr-1"></i>Budget (₹)
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Your total budget for the trip in INR (minimum ₹1000).</span>
+                    </span>
+                </label>
+                <input type="number" id="budget" name="budget" placeholder="e.g., 10000"
+                    value="{{ itinerary.budget if itinerary else (preferences.budget if preferences else 10000) }}"
+                    min="1000" required>
+            </div>
+            <div class="form-group">
+                <label for="group_size">
+                    <i class="fas fa-users mr-1"></i>Group Size
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Number of people in your travel group (minimum 1).</span>
+                    </span>
+                </label>
+                <input type="number" id="group_size" name="group_size" placeholder="e.g., 2"
+                    value="{{ itinerary.group_size if itinerary else (preferences.group_size if preferences else 1) }}"
+                    min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="transport">
+                    <i class="fas fa-car mr-1"></i>Mode of Transport
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Choose how you want to travel (e.g., Car, Bike, Train).</span>
+                    </span>
+                </label>
+                <select id="transport" name="transport" onchange="toggleBikeFields()" required>
+                    <option value="car" {% if (itinerary and itinerary.transport=='car' ) or (preferences and
+                        preferences.transport=='car' ) %}selected{% endif %}>Car</option>
+                    <option value="bike" {% if (itinerary and itinerary.transport=='bike' ) or (preferences and
+                        preferences.transport=='bike' ) %}selected{% endif %}>Bike</option>
+                    <option value="train" {% if (itinerary and itinerary.transport=='train' ) or (preferences and
+                        preferences.transport=='train' ) %}selected{% endif %}>Train</option>
+                    <option value="bus" {% if (itinerary and itinerary.transport=='bus' ) or (preferences and
+                        preferences.transport=='bus' ) %}selected{% endif %}>Bus</option>
+                    <option value="flight" {% if (itinerary and itinerary.transport=='flight' ) or (preferences and
+                        preferences.transport=='flight' ) %}selected{% endif %}>Flight</option>
+                </select>
+            </div>
+            <div id="bike_fields" class="form-group">
+                <label for="bike_model">
+                    <i class="fas fa-motorcycle mr-1"></i>Bike Model
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Select your bike model for fuel cost calculations.</span>
+                    </span>
+                </label>
+                <select id="bike_model" name="bike_model">
+                    {% for model, details in bike_models.items() %}
+                    <option value="{{ model }}" {% if itinerary and itinerary.bike_model==model %}selected{% endif %}>{{
+                        details.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="people_per_vehicle_div" class="form-group">
+                <label for="people_per_vehicle">
+                    <i class="fas fa-user-friends mr-1"></i>People per Vehicle (Bike/Car)
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Number of people per vehicle for Bike or Car (e.g., 2 for a
+                            bike).</span>
+                    </span>
+                </label>
+                <input type="number" id="people_per_vehicle" name="people_per_vehicle" placeholder="e.g., 2"
+                    value="{{ itinerary.people_per_vehicle if itinerary else 2 }}" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="fuel_price">
+                    <i class="fas fa-gas-pump mr-1"></i>Fuel Price (₹/liter)
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Current fuel price per liter in INR (used for Bike/Car).</span>
+                    </span>
+                </label>
+                <input type="number" id="fuel_price" name="fuel_price" placeholder="e.g., 100"
+                    value="{{ itinerary.fuel_price if itinerary else 100 }}" min="50" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="start_date">
+                    <i class="fas fa-calendar-alt mr-1"></i>Start Date
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Choose the date when your trip starts.</span>
+                    </span>
+                </label>
+                <input type="date" id="start_date" name="start_date"
+                    value="{{ itinerary.start_date if itinerary else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="start_time">
+                    <i class="fas fa-clock mr-1"></i>Start Time
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Choose the time when you plan to start your journey.</span>
+                    </span>
+                </label>
+                <input type="time" id="start_time" name="start_time"
+                    value="{{ itinerary.start_time if itinerary else '09:00' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="return_date">
+                    <i class="fas fa-calendar-alt mr-1"></i>Return Date
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Choose the date when your trip ends.</span>
+                    </span>
+                </label>
+                <input type="date" id="return_date" name="return_date"
+                    value="{{ itinerary.return_date if itinerary else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="return_time">
+                    <i class="fas fa-clock mr-1"></i>Return Time
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle ml-1 text-gray-500"></i>
+                        <span class="tooltiptext">Choose the time when you plan to return.</span>
+                    </span>
+                </label>
+                <input type="time" id="return_time" name="return_time"
+                    value="{{ itinerary.return_time if itinerary else '18:00' }}" required>
+            </div>
+            <button type="submit"><i class="fas fa-plane-departure mr-2"></i>Plan Your Trip</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left mr-1"></i>Back to Dashboard</a>
+    </div>
+</body>
+
+</html>
