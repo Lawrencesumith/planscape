@@ -813,19 +813,26 @@ def reset_password():
 
 @app.route('/set_session', methods=['POST'])
 def set_session():
-    data = request.get_json()
-    id_token = data.get('idToken')
-    if not id_token:
-        return jsonify({"status": "error", "message": "ID token is required"}), 400
     try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No JSON data provided"}), 400
+        
+        id_token = data.get('idToken')
+        if not id_token:
+            return jsonify({"status": "error", "message": "ID token is required"}), 400
+
         decoded_token = firebase_auth.verify_id_token(id_token)
         uid = decoded_token['uid']
-        session['user_id'] = uid  # Changed from session['user'] to session['user_id']
+        session['user_id'] = uid
         logger.debug(f"Session set: user_id={uid}")
         return jsonify({"status": "success", "message": "Session set successfully"}), 200
-    except Exception as e:
-        logger.error(f"Error verifying ID token: {str(e)}")
+    except ValueError as e:
+        logger.error(f"Firebase token verification failed: {str(e)}")
         return jsonify({"status": "error", "message": "Invalid ID token"}), 401
+    except Exception as e:
+        logger.error(f"Unexpected error in set_session: {str(e)}")
+        return jsonify({"status": "error", "message": "Internal server error"}), 500
     
 @app.route('/logout')
 @login_required
