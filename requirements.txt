@@ -5,3 +5,5 @@ firebase-admin==6.5.0
 gunicorn==23.0.0
 flask-cors==4.0.1
 requests==2.32.3
+reportlab
+flask-limiter
