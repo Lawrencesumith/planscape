@@ -1,99 +1,124 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "rwsmopnumx");
+    </script>
     <title>Flit Rovers - Dashboard</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #ff6200, #f4f4f4); 
-            min-height: 100vh; 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6200, #f4f4f4);
+            min-height: 100vh;
         }
-        .container { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.2); 
-            max-width: 800px; 
-            margin: auto; 
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            margin: auto;
         }
-        h1 { 
-            color: #ff6200; 
-            text-align: center; 
+
+        h1 {
+            color: #ff6200;
+            text-align: center;
         }
-        ul { 
-            list-style: none; 
-            padding: 0; 
+
+        ul {
+            list-style: none;
+            padding: 0;
         }
-        li { 
-            padding: 10px; 
-            border-bottom: 1px solid #ccc; 
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
         }
-        a { 
-            color: #ff6200; 
-            text-decoration: none; 
-            margin-right: 10px; 
+
+        a {
+            color: #ff6200;
+            text-decoration: none;
+            margin-right: 10px;
         }
-        a:hover { 
-            text-decoration: underline; 
+
+        a:hover {
+            text-decoration: underline;
         }
-        button { 
-            background: #ff6200; 
-            color: white; 
-            border: none; 
-            padding: 5px 10px; 
-            border-radius: 4px; 
-            cursor: pointer; 
+
+        button {
+            background: #ff6200;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        button:hover { 
-            background: #e65c00; 
+
+        button:hover {
+            background: #e65c00;
         }
-        .error, .success { 
-            padding: 10px; 
-            margin-bottom: 15px; 
-            border-radius: 4px; 
-            text-align: center; 
+
+        .error,
+        .success {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            text-align: center;
         }
-        .error { 
-            background: #ffe5e5; 
-            color: #d32f2f; 
+
+        .error {
+            background: #ffe5e5;
+            color: #d32f2f;
         }
-        .success { 
-            background: #e5ffe5; 
-            color: #2e7d32; 
+
+        .success {
+            background: #e5ffe5;
+            color: #2e7d32;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Your Dashboard</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
-        <p><a href="{{ url_for('planner') }}">Plan a New Trip</a> | <a href="{{ url_for('preferences') }}">Set Preferences</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
+        <p><a href="{{ url_for('planner') }}">Plan a New Trip</a> | <a href="{{ url_for('preferences') }}">Set
+                Preferences</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
         <h2>Your Itineraries</h2>
         {% if itineraries %}
-            <ul>
-                {% for itinerary in itineraries %}
-                    <li>
-                        {{ itinerary[1] | capitalize }} to {{ itinerary[2] | capitalize }} ({{ itinerary[3] }} days, ₹{{ itinerary[4] }})
-                        - Start: {{ itinerary[5] or 'N/A' }} {{ itinerary[6] or '' }}
-                        <a href="{{ url_for('view_itinerary', itinerary_id=itinerary[0]) }}">View</a>
-                        <a href="{{ url_for('planner', edit_id=itinerary[0]) }}">Edit</a>
-                        <form action="{{ url_for('delete_itinerary', itinerary_id=itinerary[0]) }}" method="POST" style="display:inline;">
-                            <button type="submit">Delete</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
+        <ul>
+            {% for itinerary in itineraries %}
+            <li>
+                {{ itinerary[1] | capitalize }} to {{ itinerary[2] | capitalize }} ({{ itinerary[3] }} days, ₹{{
+                itinerary[4] }})
+                - Start: {{ itinerary[5] or 'N/A' }} {{ itinerary[6] or '' }}
+                <a href="{{ url_for('view_itinerary', itinerary_id=itinerary[0]) }}">View</a>
+                <a href="{{ url_for('planner', edit_id=itinerary[0]) }}">Edit</a>
+                <form action="{{ url_for('delete_itinerary', itinerary_id=itinerary[0]) }}" method="POST"
+                    style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
         {% else %}
-            <p>No itineraries yet. <a href="{{ url_for('planner') }}">Plan one now!</a></p>
+        <p>No itineraries yet. <a href="{{ url_for('planner') }}">Plan one now!</a></p>
         {% endif %}
     </div>
 </body>
+
 </html>

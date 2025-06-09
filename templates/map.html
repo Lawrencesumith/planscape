@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "rwsmopnumx");
+    </script>
     <title>Detailed Travel Map</title>
     <style>
         body {
@@ -11,16 +19,19 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
+
         h1 {
             text-align: center;
             color: #333;
         }
+
         #map {
             height: 500px;
             width: 100%;
             margin-bottom: 20px;
             border-radius: 8px;
         }
+
         .controls {
             max-width: 800px;
             margin: 0 auto;
@@ -29,29 +40,37 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .controls input, .controls select, .controls button {
+
+        .controls input,
+        .controls select,
+        .controls button {
             padding: 8px;
             margin: 5px 10px 5px 0;
             border-radius: 4px;
             border: 1px solid #ccc;
         }
+
         .controls input {
             width: calc(50% - 20px);
         }
+
         .controls button {
             background-color: #007bff;
             color: white;
             border: none;
             cursor: pointer;
         }
+
         .controls button:hover {
             background-color: #0056b3;
         }
+
         #live-location {
             margin-top: 10px;
             color: #28a745;
             font-weight: bold;
         }
+
         .location-details {
             max-width: 800px;
             margin: 20px auto;
@@ -60,19 +79,23 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .location-details h3 {
             margin-top: 0;
             color: #34495e;
         }
     </style>
 </head>
+
 <body>
     <h1>Detailed Travel Map</h1>
     <div id="map"></div>
     <div class="location-details">
         <h3>Trip Details</h3>
-        <p><strong>Start:</strong> <span id="start-location">Not set</span> (Lat: <span id="start-lat">-</span>, Lng: <span id="start-lng">-</span>)</p>
-        <p><strong>Destination:</strong> <span id="dest-location">Not set</span> (Lat: <span id="dest-lat">-</span>, Lng: <span id="dest-lng">-</span>)</p>
+        <p><strong>Start:</strong> <span id="start-location">Not set</span> (Lat: <span id="start-lat">-</span>, Lng:
+            <span id="start-lng">-</span>)</p>
+        <p><strong>Destination:</strong> <span id="dest-location">Not set</span> (Lat: <span id="dest-lat">-</span>,
+            Lng: <span id="dest-lng">-</span>)</p>
     </div>
     <div class="controls">
         <input id="start-input" type="text" placeholder="Enter start location">
@@ -93,7 +116,7 @@
         let startMarker, destMarker, startInfoWindow, destInfoWindow;
         let startLatLng = null, destLatLng = null;
 
-        window.initMap = function() {
+        window.initMap = function () {
             // Initialize map with a default center (e.g., New York)
             map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 40.7128, lng: -74.0060 },
@@ -299,4 +322,5 @@
         document.head.appendChild(script);
     </script>
 </body>
+
 </html>
